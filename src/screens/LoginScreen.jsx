@@ -2,9 +2,14 @@ import React, { useState, useEffect } from "react";
 import { auth } from "../firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
+import { useDispatch } from "react-redux";
+import { login } from "../redux/authSlice";
+
 export default function LoginScreen({ navigate }) {
   const [mounted, setMounted] = useState(false);
   const [hovering, setHovering] = useState(false);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 80);
@@ -15,8 +20,20 @@ export default function LoginScreen({ navigate }) {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
 
+    console.log("Google sign-in result:", result);
+
     if (result.user) {
+      const userData = {
+        uid: result.user.uid,
+        displayName: result.user.displayName,
+        email: result.user.email,
+        photoURL: result.user.photoURL,
+      };
+      dispatch(login(userData));
       navigate("home");
+
+      //   dispatch(login(result.user));
+      //   navigate("home");
     }
 
     console.log(result.user);

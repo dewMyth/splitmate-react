@@ -6,9 +6,17 @@ import { totalExpenses, getSettlements, formatAmount } from "../utils/models";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 
+import { useDispatch } from "react-redux";
+import { logout } from "../redux/authSlice";
+
+import { useSelector } from "react-redux";
+
 export default function HomeScreen({ navigate }) {
   const { groups, getTotalAcrossGroups } = useApp();
   const total = getTotalAcrossGroups();
+  const dispatch = useDispatch();
+
+  const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -25,7 +33,7 @@ export default function HomeScreen({ navigate }) {
   return (
     <div className="screen">
       {/* Header */}
-      <div className="app-bar" style={{ paddingBottom: 8 }}>
+      {/* <div className="app-bar" style={{ paddingBottom: 8 }}>
         <div style={{ flex: 1 }}>
           <div
             style={{
@@ -40,6 +48,109 @@ export default function HomeScreen({ navigate }) {
             SplitMate
           </div>
         </div>
+
+        
+      </div> */}
+
+      <div className="app-bar" style={{ paddingBottom: 8 }}>
+        {/* Wordmark */}
+        <div style={{ flex: 1 }}>
+          <div
+            style={{
+              fontSize: 28,
+              fontWeight: 800,
+              background: "linear-gradient(135deg, #6C63FF, #00D4AA)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            SplitMate
+          </div>
+        </div>
+
+        {/* Avatar */}
+        {user && (
+          <div
+            title={user.displayName || user.email}
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: "50%",
+              flexShrink: 0,
+              overflow: "hidden",
+              border: "2px solid rgba(108,99,255,0.5)",
+              boxShadow: "0 0 0 3px rgba(108,99,255,0.12)",
+              cursor: "default",
+            }}
+          >
+            {user.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt={user.displayName || "avatar"}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  background: "linear-gradient(135deg, #6C63FF, #00D4AA)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: "white",
+                }}
+              >
+                {getInitials(user.displayName || user.email)}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Logout button */}
+        <button
+          onClick={() => dispatch(logout())}
+          title="Sign out"
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: 12,
+            border: "none",
+            background: "rgba(255,107,107,0.1)",
+            color: "#FF6B6B",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            transition: "background 0.15s",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.background = "rgba(255,107,107,0.22)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.background = "rgba(255,107,107,0.1)")
+          }
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </button>
       </div>
 
       <div className="screen-body">

@@ -5,6 +5,7 @@ import GroupDetailScreen from "../screens/GroupDetailScreen";
 import AddExpenseScreen from "../screens/AddExpenseScreen";
 import ManageParticipantsScreen from "../screens/ManageParticipantsScreen";
 import LoginScreen from "../screens/LoginScreen";
+import { useSelector } from "react-redux";
 
 const SCREENS = {
   login: LoginScreen,
@@ -16,7 +17,11 @@ const SCREENS = {
 };
 
 export default function Router() {
-  const [stack, setStack] = useState([{ screen: "login", params: {} }]);
+  const user = useSelector((state) => state.auth.user);
+
+  const [stack, setStack] = useState([
+    { screen: user ? "home" : "login", params: {} },
+  ]);
   const current = stack[stack.length - 1];
 
   const navigate = useCallback((screen, params = {}) => {
@@ -27,6 +32,8 @@ export default function Router() {
     }
   }, []);
 
+  const resolvedScreen =
+    !user && current.screen !== "login" ? "login" : current.screen;
   const Screen = SCREENS[current.screen] || LoginScreen;
 
   return (
