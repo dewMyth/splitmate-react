@@ -1,11 +1,26 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import { GlassCard, EmptyState, GradientBtn } from "../components/ui";
 import { totalExpenses, getSettlements, formatAmount } from "../utils/models";
 
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase";
+
 export default function HomeScreen({ navigate }) {
   const { groups, getTotalAcrossGroups } = useApp();
   const total = getTotalAcrossGroups();
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("Logged in:", user.uid);
+      } else {
+        console.log("No user");
+      }
+    });
+
+    return () => unsub();
+  }, []);
 
   return (
     <div className="screen">

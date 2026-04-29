@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { auth } from "../firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export default function LoginScreen({ navigate }) {
   const [mounted, setMounted] = useState(false);
@@ -8,6 +10,17 @@ export default function LoginScreen({ navigate }) {
     const t = setTimeout(() => setMounted(true), 80);
     return () => clearTimeout(t);
   }, []);
+
+  const googleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+
+    if (result.user) {
+      navigate("home");
+    }
+
+    console.log(result.user);
+  };
 
   return (
     <div style={styles.root}>
@@ -109,7 +122,7 @@ export default function LoginScreen({ navigate }) {
           onMouseLeave={() => setHovering(false)}
           onTouchStart={() => setHovering(true)}
           onTouchEnd={() => setHovering(false)}
-          onClick={() => navigate("home")}
+          onClick={() => googleLogin()}
         >
           <GoogleIcon />
           <span style={styles.googleBtnText}>Continue with Google</span>
