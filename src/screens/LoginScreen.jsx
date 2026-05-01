@@ -35,9 +35,6 @@ export default function LoginScreen({ navigate }) {
       await saveUserToFirestore(userData);
       dispatch(login(userData));
       navigate("home");
-
-      //   dispatch(login(result.user));
-      //   navigate("home");
     }
 
     console.log(result.user);
