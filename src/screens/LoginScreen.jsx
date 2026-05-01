@@ -4,6 +4,7 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 import { useDispatch } from "react-redux";
 import { login } from "../redux/authSlice";
+import { saveUserToFirestore } from "../services/database-services";
 
 export default function LoginScreen({ navigate }) {
   const [mounted, setMounted] = useState(false);
@@ -29,6 +30,9 @@ export default function LoginScreen({ navigate }) {
         email: result.user.email,
         photoURL: result.user.photoURL,
       };
+
+      // Save the user in firestore if they don't exist
+      await saveUserToFirestore(userData);
       dispatch(login(userData));
       navigate("home");
 
