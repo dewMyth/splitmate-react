@@ -118,6 +118,7 @@ export default function CreateGroupScreen({ navigate }) {
     await saveGroupToFirestore({
       ...group,
       participants,
+      participantsIds: participants.map((p) => p.uid).filter(Boolean), // Array of participant UIDs (excluding guests)
     });
     await navigate("group-detail", { groupId: group.id });
   }
