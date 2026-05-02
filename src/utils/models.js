@@ -20,9 +20,9 @@ export function randomColor() {
 }
 
 export function getInitials(name) {
-  const parts = name.trim().split(" ");
-  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-  return name.length > 0 ? name[0].toUpperCase() : "?";
+  const parts = name?.trim().split(" ");
+  if (parts?.length >= 2) return (parts[0][0] + parts[1][0])?.toUpperCase();
+  return name?.length > 0 ? name[0]?.toUpperCase() : "?";
 }
 
 export function createParticipant(name) {

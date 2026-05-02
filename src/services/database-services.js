@@ -6,6 +6,8 @@ import {
   collection,
   where,
   getDocs,
+  updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -87,5 +89,40 @@ export const getGroupDataFromFirestoreByGroupId = async (groupId) => {
     console.error("Error fetching group:", error);
 
     return null;
+  }
+};
+
+// Save expensees to group in Firestore
+export const saveExpenseToFirestore = async (groupId, expense) => {
+  console.log("Saving expense to Firestore:", expense);
+
+  try {
+    const groupRef = doc(db, "groups", groupId);
+
+    await updateDoc(groupRef, {
+      expenses: arrayUnion({
+        ...expense,
+
+        createdAt: new Date().toISOString(), // optional but useful
+      }),
+    });
+  } catch (error) {
+    console.error("Error adding expense:", error);
+  }
+};
+
+export const deleteExpenseFromFirestore = async (groupId, expenseId) => {
+  try {
+    const groupRef = doc(db, "groups", groupId);
+    const groupSnap = await getDoc(groupRef);
+    if (groupSnap.exists()) {
+      const groupData = groupSnap.data();
+      const updatedExpenses = (groupData.expenses || []).filter(
+        (e) => e.id !== expenseId,
+      );
+      await setDoc(groupRef, { ...groupData, expenses: updatedExpenses });
+    }
+  } catch (error) {
+    console.error("Error deleting expense from Firestore:", error);
   }
 };
