@@ -17,3 +17,17 @@ export const saveUserToFirestore = async (user) => {
     console.error("Error saving user to Firestore:", error);
   }
 };
+
+export const saveGroupToFirestore = async (group) => {
+  try {
+    const groupRef = doc(db, "groups", group.id);
+    await setDoc(groupRef, {
+      name: group.name,
+      emoji: group.emoji,
+      category: group.category,
+      participants: group.participants,
+    });
+  } catch (error) {
+    console.error("Error saving group to Firestore:", error);
+  }
+};

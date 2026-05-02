@@ -6,6 +6,8 @@ import { useSelector } from "react-redux";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase"; // adjust path to your firebase config
 
+import { saveGroupToFirestore } from "../services/database-services"; // Import the function to save group details to Firestore
+
 export default function CreateGroupScreen({ navigate }) {
   const user = useSelector((state) => state.auth.user);
   const { addGroup, addParticipant, showSnack } = useApp();
@@ -111,7 +113,13 @@ export default function CreateGroupScreen({ navigate }) {
     setSaving(true);
     const group = addGroup(name.trim(), emoji, category);
     participants.forEach((p) => addParticipant(group.id, p.name, p.uid));
-    navigate("group-detail", { groupId: group.id });
+
+    // Save Group details on firestore
+    await saveGroupToFirestore({
+      ...group,
+      participants,
+    });
+    await navigate("group-detail", { groupId: group.id });
   }
 
   return (
