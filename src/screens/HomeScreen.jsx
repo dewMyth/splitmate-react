@@ -22,15 +22,27 @@ export default function HomeScreen({ navigate }) {
 
   const user = useSelector((state) => state.auth.user);
 
-  useEffect(async () => {
-    if (user) {
-      setLoading(true);
-      const groupsOfUser = await getGroupFromFirestoreForAUser(user.uid);
-      console.log("Groups fetched for user:", groupsOfUser);
-      setGroups(groupsOfUser);
-    }
-    setLoading(false);
-  }, []);
+  useEffect(() => {
+    const fetchGroups = async () => {
+      if (user) {
+        setLoading(true);
+
+        const groupsOfUser = await getGroupFromFirestoreForAUser(user.uid);
+
+        // try {
+        //   localStorage.setItem(
+        //     "splitmate_groups",
+        //     JSON.stringify(groupsOfUser),
+        //   );
+        // } catch {}
+
+        setGroups(groupsOfUser || []);
+        setLoading(false);
+      }
+    };
+
+    fetchGroups();
+  }, [user]);
 
   return (
     <div className="screen">
@@ -229,7 +241,6 @@ export default function HomeScreen({ navigate }) {
             <div style={{ padding: "0 20px 120px" }}>
               {!loading ? (
                 groups.map((group) => {
-                  console.log("Rendering group:", group);
                   const total = totalExpenses(group);
                   const settlements = getSettlements(group);
                   const pending = settlements.length;

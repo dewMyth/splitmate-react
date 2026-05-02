@@ -65,3 +65,27 @@ export const getGroupFromFirestoreForAUser = async (userId) => {
     return null;
   }
 };
+
+export const getGroupDataFromFirestoreByGroupId = async (groupId) => {
+  try {
+    const docRef = doc(db, "groups", groupId);
+
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log("Group data fetched from Firestore:", docSnap.data());
+      return {
+        id: docSnap.id,
+        ...docSnap.data(),
+      };
+    } else {
+      console.log("No such group!");
+
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching group:", error);
+
+    return null;
+  }
+};
