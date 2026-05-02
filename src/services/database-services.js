@@ -1,4 +1,12 @@
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  getDoc,
+  query,
+  collection,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "../firebase";
 
 export const saveUserToFirestore = async (user) => {
@@ -27,6 +35,8 @@ export const saveGroupToFirestore = async (group) => {
       category: group.category,
       participants: group.participants,
       participantIds: group.participantsIds,
+      expenses: [],
+      createdAt: new Date().toISOString(),
     });
   } catch (error) {
     console.error("Error saving group to Firestore:", error);
@@ -43,9 +53,13 @@ export const getGroupFromFirestoreForAUser = async (userId) => {
 
     const snapshot = await getDocs(q);
 
-    snapshot.forEach((doc) => {
-      console.log(doc.id, doc.data());
-    });
+    // Return the groups as an array of objects
+    const groupsOfUser = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return groupsOfUser;
   } catch (error) {
     console.error("Error fetching group from Firestore:", error);
     return null;

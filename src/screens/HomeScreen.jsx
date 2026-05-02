@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useApp } from "../context/AppContext";
 import { GlassCard, EmptyState, GradientBtn } from "../components/ui";
 import { totalExpenses, getSettlements, formatAmount } from "../utils/models";
@@ -11,23 +11,25 @@ import { logout } from "../redux/authSlice";
 
 import { useSelector } from "react-redux";
 
+import { getGroupFromFirestoreForAUser } from "../services/database-services";
+
 export default function HomeScreen({ navigate }) {
-  const { groups, getTotalAcrossGroups } = useApp();
+  const { getTotalAcrossGroups } = useApp();
+  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(false);
   const total = getTotalAcrossGroups();
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.user);
 
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        console.log("Logged in:", user.uid);
-      } else {
-        console.log("No user");
-      }
-    });
-
-    return () => unsub();
+  useEffect(async () => {
+    if (user) {
+      setLoading(true);
+      const groupsOfUser = await getGroupFromFirestoreForAUser(user.uid);
+      console.log("Groups fetched for user:", groupsOfUser);
+      setGroups(groupsOfUser);
+    }
+    setLoading(false);
   }, []);
 
   return (
@@ -210,7 +212,7 @@ export default function HomeScreen({ navigate }) {
         </div>
 
         {/* Groups list */}
-        {groups.length === 0 ? (
+        {!loading && groups.length === 0 ? (
           <EmptyState
             emoji="🎯"
             title="No groups yet"
@@ -225,85 +227,162 @@ export default function HomeScreen({ navigate }) {
           <>
             <div className="section-header">YOUR GROUPS</div>
             <div style={{ padding: "0 20px 120px" }}>
-              {groups.map((group) => {
-                const total = totalExpenses(group);
-                const settlements = getSettlements(group);
-                const pending = settlements.length;
-                return (
-                  <GlassCard
-                    key={group.id}
-                    onClick={() =>
-                      navigate("group-detail", { groupId: group.id })
-                    }
-                    style={{
-                      marginBottom: 12,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 16,
-                    }}
-                  >
-                    <div
+              {!loading ? (
+                groups.map((group) => {
+                  console.log("Rendering group:", group);
+                  const total = totalExpenses(group);
+                  const settlements = getSettlements(group);
+                  const pending = settlements.length;
+                  return (
+                    <GlassCard
+                      key={group.id}
+                      onClick={() =>
+                        navigate("group-detail", { groupId: group.id })
+                      }
                       style={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: 16,
-                        background: "var(--surface-light)",
+                        marginBottom: 12,
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 28,
-                        flexShrink: 0,
+                        gap: 16,
                       }}
                     >
-                      {group.emoji}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div
                         style={{
-                          fontWeight: 700,
-                          fontSize: 16,
-                          color: "var(--text-primary)",
-                          marginBottom: 4,
+                          width: 56,
+                          height: 56,
+                          borderRadius: 16,
+                          background: "var(--surface-light)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 28,
+                          flexShrink: 0,
                         }}
                       >
-                        {group.name}
+                        {group.emoji}
                       </div>
-                      <div
-                        style={{ fontSize: 13, color: "var(--text-secondary)" }}
-                      >
-                        {group.participants.length} members ·{" "}
-                        {group.expenses.length} expenses
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            fontSize: 16,
+                            color: "var(--text-primary)",
+                            marginBottom: 4,
+                          }}
+                        >
+                          {group.name}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 13,
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          {group.participants.length} members ·{" "}
+                          {group.expenses.length} expenses
+                        </div>
                       </div>
-                    </div>
-                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div style={{ textAlign: "right", flexShrink: 0 }}>
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            fontSize: 16,
+                            color: "var(--text-primary)",
+                          }}
+                        >
+                          LKR {total.toFixed(0)}
+                        </div>
+                        {pending > 0 ? (
+                          <span
+                            className="badge badge-negative"
+                            style={{ marginTop: 4, display: "inline-block" }}
+                          >
+                            {pending} to settle
+                          </span>
+                        ) : group.expenses.length > 0 ? (
+                          <span
+                            className="badge badge-positive"
+                            style={{ marginTop: 4, display: "inline-block" }}
+                          >
+                            ✓ Settled
+                          </span>
+                        ) : null}
+                      </div>
+                    </GlassCard>
+                  );
+                })
+              ) : (
+                <div>
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      style={{
+                        marginBottom: 12,
+                        padding: 16,
+                        borderRadius: 20,
+                        background: "rgba(255,255,255,0.05)",
+                        backdropFilter: "blur(10px)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 16,
+                        animation: "fadePulse 1.5s infinite ease-in-out",
+                      }}
+                    >
+                      {/* Emoji placeholder */}
                       <div
                         style={{
-                          fontWeight: 700,
-                          fontSize: 16,
-                          color: "var(--text-primary)",
+                          width: 56,
+                          height: 56,
+                          borderRadius: 16,
+                          background: "rgba(255,255,255,0.08)",
                         }}
-                      >
-                        LKR {total.toFixed(0)}
+                      />
+
+                      {/* Text */}
+                      <div style={{ flex: 1 }}>
+                        <div
+                          style={{
+                            height: 14,
+                            width: "60%",
+                            background: "rgba(255,255,255,0.08)",
+                            borderRadius: 6,
+                            marginBottom: 8,
+                          }}
+                        />
+                        <div
+                          style={{
+                            height: 12,
+                            width: "40%",
+                            background: "rgba(255,255,255,0.06)",
+                            borderRadius: 6,
+                          }}
+                        />
                       </div>
-                      {pending > 0 ? (
-                        <span
-                          className="badge badge-negative"
-                          style={{ marginTop: 4, display: "inline-block" }}
-                        >
-                          {pending} to settle
-                        </span>
-                      ) : group.expenses.length > 0 ? (
-                        <span
-                          className="badge badge-positive"
-                          style={{ marginTop: 4, display: "inline-block" }}
-                        >
-                          ✓ Settled
-                        </span>
-                      ) : null}
+
+                      {/* Right side */}
+                      <div style={{ textAlign: "right" }}>
+                        <div
+                          style={{
+                            height: 14,
+                            width: 50,
+                            background: "rgba(255,255,255,0.08)",
+                            borderRadius: 6,
+                            marginBottom: 6,
+                          }}
+                        />
+                        <div
+                          style={{
+                            height: 10,
+                            width: 70,
+                            background: "rgba(255,255,255,0.06)",
+                            borderRadius: 6,
+                          }}
+                        />
+                      </div>
                     </div>
-                  </GlassCard>
-                );
-              })}
+                  ))}
+                </div>
+              )}
             </div>
           </>
         )}
