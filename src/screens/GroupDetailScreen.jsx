@@ -287,7 +287,6 @@ function BalancesTab({ group }) {
     );
   }
   const balances = getBalances(group);
-  console.log("Calculating balances for group:", balances);
   return (
     <div
       style={{
@@ -384,8 +383,8 @@ function SettleTab({ group, showSnack }) {
   }
 
   function copySettlement(s) {
-    const from = group?.participants.find((p) => p.id === s.fromId)?.name;
-    const to = group?.participants.find((p) => p.id === s.toId)?.name;
+    const from = group?.participants.find((p) => p.uid === s.fromId)?.name;
+    const to = group?.participants.find((p) => p.uid === s.toId)?.name;
     navigator.clipboard?.writeText(
       `${from} pays ${to} ${formatAmount(s.amount)}`,
     );
@@ -435,8 +434,8 @@ function SettleTab({ group, showSnack }) {
 
       {/* Each settlement */}
       {settlements.map((s, i) => {
-        const from = group?.participants.find((p) => p.id === s.fromId);
-        const to = group?.participants.find((p) => p.id === s.toId);
+        const from = group?.participants.find((p) => p.uid === s.fromId);
+        const to = group?.participants.find((p) => p.uid === s.toId);
         return (
           <GlassCard key={i} borderColor="rgba(255,179,71,0.2)">
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -502,7 +501,8 @@ function SettleTab({ group, showSnack }) {
                   color: "var(--text-secondary)",
                 }}
               >
-                {from?.name} → {to?.name}
+                {from?.name || from?.displayName} →{" "}
+                {to?.name || to?.displayName}
               </div>
               <button
                 className="icon-btn"
@@ -519,10 +519,11 @@ function SettleTab({ group, showSnack }) {
       {/* Summary totals */}
       <GlassCard>
         {group?.participants.map((p) => {
-          const bal = balances[p.id] || 0;
+          console.log("settlement participant:", p);
+          const bal = balances[p.uid] || 0;
           return (
             <div
-              key={p.id}
+              key={p.uid}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -534,7 +535,7 @@ function SettleTab({ group, showSnack }) {
               <div
                 style={{ flex: 1, fontSize: 14, color: "var(--text-primary)" }}
               >
-                {p.name}
+                {p.name || p.displayName}
               </div>
               <div
                 style={{

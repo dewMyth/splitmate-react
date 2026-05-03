@@ -115,6 +115,8 @@ export function getSettlements(group) {
     .map(([k, v]) => [k, Math.abs(v)])
     .sort((a, b) => b[1] - a[1]);
 
+  console.log(creditors, debtors); // Debugging line to check creditors and debtors
+
   let ci = 0,
     di = 0;
   const mc = creditors.map(([k, v]) => [k, v]);
@@ -128,6 +130,7 @@ export function getSettlements(group) {
     if (mc[ci][1] < 0.01) ci++;
     if (md[di][1] < 0.01) di++;
   }
+  console.log("Settlements calculated:", settlements); // Debugging line to check settlements
   return settlements;
 }
 
