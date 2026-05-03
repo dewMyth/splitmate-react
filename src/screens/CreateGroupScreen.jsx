@@ -5,6 +5,7 @@ import { GROUP_EMOJIS, GROUP_CATEGORIES } from "../utils/models";
 import { useSelector } from "react-redux";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase"; // adjust path to your firebase config
+import { v4 as uuidv4 } from "uuid"; // For generating unique IDs for guest participants
 
 import { saveGroupToFirestore } from "../services/database-services"; // Import the function to save group details to Firestore
 
@@ -16,7 +17,7 @@ export default function CreateGroupScreen({ navigate }) {
   const [emoji, setEmoji] = useState("🏠");
   const [category, setCategory] = useState("General");
   const [participants, setParticipants] = useState([
-    { name: user.displayName, uid: user.uid, photoURL: user.photoURL },
+    { displayName: user.displayName, uid: user.uid, photoURL: user.photoURL },
   ]);
   const [pInput, setPInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -87,14 +88,18 @@ export default function CreateGroupScreen({ navigate }) {
 
   function addTyped() {
     const n = pInput.trim();
+    console.log("Adding typed participant:", n); // Debugging line to check the typed name
+    console.log("Current participants:", participants); // Debugging line to check current participants before adding
     if (!n) return;
-    if (participants.some((p) => p.name.toLowerCase() === n.toLowerCase())) {
+    if (
+      participants.some((p) => p.displayName.toLowerCase() === n.toLowerCase())
+    ) {
       showSnack("Already added");
       return;
     }
     setParticipants((prev) => [
       ...prev,
-      { name: n, uid: null, photoURL: null },
+      { displayName: n, uid: uuidv4(), photoURL: null },
     ]);
     setPInput("");
     setSuggestions([]);
