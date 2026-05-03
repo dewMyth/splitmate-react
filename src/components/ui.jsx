@@ -1,9 +1,51 @@
 import React, { useState } from "react";
 import { getInitials } from "../utils/models";
 
+// export function Avatar({ participant, size = 40 }) {
+//   const color = participant.avatarColor || "#6C63FF";
+//   const fontSize = size * 0.35;
+//   return (
+//     <div
+//       className="avatar"
+//       style={{
+//         width: size,
+//         height: size,
+//         fontSize,
+//         backgroundColor: color + "33",
+//         borderColor: color,
+//         color,
+//         flexShrink: 0,
+//       }}
+//     >
+//       {getInitials(participant.name || participant?.displayName)}
+//     </div>
+//   );
+// }
+
 export function Avatar({ participant, size = 40 }) {
   const color = participant.avatarColor || "#6C63FF";
   const fontSize = size * 0.35;
+  const photoUrl = participant.photoURL;
+
+  console.log("Rendering avatar with photo for participant:", participant); // Debugging line to check participant data
+
+  if (photoUrl) {
+    return (
+      <img
+        src={photoUrl}
+        alt={participant.name || participant?.displayName || "Avatar"}
+        className="avatar"
+        style={{
+          width: size,
+          height: size,
+          borderColor: color,
+          objectFit: "cover",
+          flexShrink: 0,
+        }}
+      />
+    );
+  }
+
   return (
     <div
       className="avatar"
