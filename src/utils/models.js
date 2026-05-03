@@ -90,7 +90,7 @@ export function getSplitAmounts(expense, participants) {
 export function getBalances(group) {
   const balances = {};
   group.participants.forEach((p) => {
-    balances[p.id] = 0;
+    balances[p.uid] = 0;
   });
   group.expenses.forEach((expense) => {
     balances[expense.payerId] =

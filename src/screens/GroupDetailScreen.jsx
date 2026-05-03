@@ -287,6 +287,7 @@ function BalancesTab({ group }) {
     );
   }
   const balances = getBalances(group);
+  console.log("Calculating balances for group:", balances);
   return (
     <div
       style={{
@@ -297,12 +298,12 @@ function BalancesTab({ group }) {
       }}
     >
       {group?.participants.map((p) => {
-        const bal = balances[p.id] || 0;
+        const bal = balances[p.uid] || 0;
         const pos = bal >= 0;
         const settled = Math.abs(bal) < 0.01;
         return (
           <GlassCard
-            key={p.id}
+            key={p.uid}
             borderColor={
               settled
                 ? undefined
@@ -322,7 +323,7 @@ function BalancesTab({ group }) {
                   marginBottom: 3,
                 }}
               >
-                {p.name}
+                {p.name || p.displayName}
               </div>
               <div
                 style={{
