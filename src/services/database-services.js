@@ -126,3 +126,15 @@ export const deleteExpenseFromFirestore = async (groupId, expenseId) => {
     console.error("Error deleting expense from Firestore:", error);
   }
 };
+
+export const addNewUserToGroupInFirestore = async (groupId, user) => {
+  try {
+    const groupRef = doc(db, "groups", groupId);
+    await updateDoc(groupRef, {
+      participants: arrayUnion(user),
+      participantIds: arrayUnion(user.uid),
+    });
+  } catch (error) {
+    console.error("Error adding user to group in Firestore:", error);
+  }
+};

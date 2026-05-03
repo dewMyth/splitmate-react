@@ -73,7 +73,7 @@ export default function GroupDetailScreen({ navigate, params }) {
             className="icon-btn"
             style={{ fontSize: 20, color: "var(--text-secondary)" }}
             onClick={() =>
-              navigate("manage-participants", { groupId: group?.id })
+              navigate("manage-participants", { groupId: group?.id, group })
             }
           >
             👥

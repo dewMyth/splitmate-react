@@ -29,13 +29,6 @@ export default function HomeScreen({ navigate }) {
 
         const groupsOfUser = await getGroupFromFirestoreForAUser(user.uid);
 
-        try {
-          localStorage.setItem(
-            "splitmate_groups",
-            JSON.stringify(groupsOfUser),
-          );
-        } catch {}
-
         setGroups(groupsOfUser || []);
         setLoading(false);
       }
